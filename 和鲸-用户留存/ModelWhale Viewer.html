@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+  <title>ModelWhale Viewer</title>
+  <link href="//cdn.kesci.com/favicon.ico" type="image/x-icon" rel="shortcut icon">
+  <link href="https://cdn.kesci.com/nb_render/styles.css?v=201116" rel="stylesheet">
+  <link href="/static/nbrender.css" rel="stylesheet">
+</head>
+<body class="nbviewer">
+  <div class="container container-main">
+    <div id="notebook">
+      <div id="notebook-container">
+          <div class="k-loading-spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script>
+    (function () {
+      function writeHTML(sourceStr) {
+        var headLibs = [
+          'https://cdn.bootcdn.net/ajax/libs/jquery/2.2.4/jquery.min.js',
+          'https://cdn.bootcdn.net/ajax/libs/require.js/2.1.22/require.js',
+          'https://cdn.bootcdn.net/ajax/libs/moment.js/2.8.4/moment.min.js',
+          'https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js'
+        ];
+
+        var bodyLibs = [
+          '/static/nbrender.js',
+          'https://cdn.bootcdn.net/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_SVG&local=zh-hans'
+        ];
+        
+        function makeScript(url) {
+          return '<script src="' + url + '"><\/script>';
+        }
+
+        let before = '';
+        let after = '';
+
+        before += '<!DOCTYPE html>\n<html lang="zh-cmn-Hans"><head>';
+        before += document.querySelector('head').innerHTML;
+        before += headLibs.map(makeScript).join('\n');
+        before += '</head><body class="nbviewer"><div class="container container-main"><div id="notebook"><div id="notebook-container">';
+        
+        after += '</div></div></div>';
+        after += bodyLibs.map(makeScript).join('\n');
+        after += '</body></html>';
+
+        document.open();
+        document.write(before + sourceStr + after);
+        document.close();
+      }
+
+      var loadRetry = 0;
+
+      function loadRemoteContent() {
+        jQuery.ajax({
+          method: 'GET',
+          url: 'https://s3.cn-north-1.amazonaws.com.cn/kesci-nbrender-content/20211116/d4f6aa75-2801-4ee4-b717-015dd6317d3c.html.gz',
+            dataType: 'text',
+            success: function (sourceStr) {
+              writeHTML(sourceStr);              
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              loadRetry++;
+              if (loadRetry < 5) {
+                window.setTimeout(loadRemoteContent, 5000);
+              } else {
+                document.querySelector('body').textContent=['加载失败', errorThrown.toString(), asyncContentUrl].join(' ');
+              }
+            }
+        });
+      }
+      loadRemoteContent();
+    })();
+  </script>
+</body>
+</html>

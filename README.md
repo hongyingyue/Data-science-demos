@@ -1,4 +1,7 @@
-# UsedCarPrice
-Regression task: to forecast the price of the used cars
+# Data science demos
 
-Update 1
+- 和鲸-用户留存-Top3
+
+- 工业大数据-备件预测-Top30
+
+
